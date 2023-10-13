@@ -1,2 +1,2 @@
 # FileIntegrityMonPy
-A file integrity monitor written in Python
+A file integrity monitor written in Python that allows a user to iterate through all files within a directory or group of directories and store a baseline text file that they can use to directly compare to any files in the future. If any of the files within a directory don't match the hash corresponding to that file in baseline.txt, an alert will be made to the user, stating that the integrity of the file has been compromised.
