@@ -5,6 +5,8 @@ import time
 from email.message import EmailMessage
 import re
 
+# Next step: Implement a way to iterate through all directories within a selected parent directory in order to scan all nested files
+
 BUF_SIZE = 65536 # 64 KB chunks
 
 def new_baseline():
@@ -12,22 +14,26 @@ def new_baseline():
 
     if os.path.exists(baseline):
         os.remove(baseline)
-    for filename in os.listdir(directory):
-        filehash = hashlib.sha256()
-        fn = os.path.join(directory, filename)
-        with open(fn, 'rb') as f:
-            while True:
-                data = f.read()
-                if not data:
-                    break
-                if data:
-                    filehash.update(data)
-            f.close()
-        f = open(baseline, 'a')
-        print(f"{fn} | {filehash.hexdigest()}", file=f) # Sends the print output to the baseline file
-        print(f"{fn} | {filehash.hexdigest()}")
+    # For each directory within the chosen directory
+    # scan each file
+    # then move onto the next directory and scan each file there until there are no more deeper directories
+    for subdir, dirs, files in os.walk(directory):
+        for filename in files:
+            filehash = hashlib.sha256()
+            fn = os.path.join(directory, filename)
+            with open(fn, 'rb') as f:
+                while True:
+                    data = f.read()
+                    if not data:
+                        break
+                    if data:
+                        filehash.update(data)
+                f.close()
+            f = open(baseline, 'a')
+            print(f"{fn} | {filehash.hexdigest()}", file=f) # Sends the print output to the baseline file
+            print(f"{fn} | {filehash.hexdigest()}")
 
-        f.close()
+            f.close()
 
 def comp_baseline():
     # Begin (continuously) monitoring files with saved baseline
