@@ -20,7 +20,7 @@ def new_baseline():
     for subdir, dirs, files in os.walk(directory):
         for filename in files:
             filehash = hashlib.sha256()
-            fn = os.path.join(directory, filename)
+            fn = os.path.join(subdir, filename)
             with open(fn, 'rb') as f:
                 while True:
                     data = f.read()
@@ -46,18 +46,19 @@ def comp_baseline():
                 print(filehash, '\n')
                 # fp is a file path name
                 # with fp, read each line of the relevant baseline
-                for filename in os.listdir(directory):
-                    fpath = os.path.join(directory, filename)
-                    # check if the current fp matches any of the files in the directory
-                    # if it DOES: start an if statement
-                    if fp == str(fpath):
-                        with open(fpath, 'rb') as tf:
-                            test_hash = hashlib.sha256(tf.read())
-                            print(test_hash.hexdigest())
-                            if test_hash.hexdigest() == filehash:
-                                print(f"{fp!r} has a matching hash.\n")
-                            else:
-                                print(f"{fp!r} has a non-matching hash.\n")
+                for subdir, dirs, files in os.walk(directory):
+                    for filename in files:
+                        fpath = os.path.join(subdir, filename)
+                        # check if the current fp matches any of the files in the directory
+                        # if it DOES: start an if statement
+                        if fp == str(fpath):
+                            with open(fpath, 'rb') as tf:
+                                test_hash = hashlib.sha256(tf.read())
+                                print(test_hash.hexdigest())
+                                if test_hash.hexdigest() == filehash:
+                                    print(f"{fp!r} has a matching hash.\n")
+                                else:
+                                    print(f"{fp!r} has a non-matching hash.\n")
 
         # Compare current file: hash to dictionary to check if it's in there
         # if not, it means the file does not exist
@@ -71,11 +72,11 @@ def comp_baseline():
 if __name__ == "__main__":
     print("What would you like to do?\nA) Collect new Baseline?\nB) Begin monitoring files with saved Baseline?\n\n")
     choice = input("Please enter 'A' or 'B': ").upper()
-    directory = input("Please enter the filepath of the directory you would like to monitor: ") # Set a directory for file hash scanning
-    baseline = f'baseline{directory}.txt'.replace('/', '_')
     if choice != 'A' and choice != 'B':
         print("Not a valid option!")
         quit()
+    directory = input("Please enter the filepath of the directory you would like to monitor: ") # Set a directory for file hash scanning
+    baseline = f'baseline{directory}.txt'.replace('/', '_')
 
     if choice == 'A':
         new_baseline()
