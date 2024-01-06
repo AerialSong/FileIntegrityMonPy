@@ -68,7 +68,9 @@ def comp_baseline():
                                 # and the json file will be updated.
                                 if test_hash.hexdigest() == data[i]:
                                     pass
-                                else:
+                                # This elif is because this particular hash always appears in the log and baseline before the actual specified file's hash
+                                # Temporary, dirty solution
+                                elif test_hash.hexdigest() != "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" and test_hash.hexdigest() != data[i]:
                                     print(data[i], '\n')
                                     print(test_hash.hexdigest())
                                     print(f"{i!r} has a non-matching hash.\n")
@@ -78,6 +80,7 @@ def comp_baseline():
                                         data[i] = test_hash.hexdigest()
                                         jf.seek(0)
                                         jf.write(json.dumps(data))
+                                        jf.truncate()
                                 tf.close()
                 # Consider scanning on an hourly or daily schedule
                 # instead of a continuous real time scan
