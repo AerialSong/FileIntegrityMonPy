@@ -8,8 +8,6 @@ import time
 from email.message import EmailMessage
 import re
 
-# Next step: Implement a way to iterate through all directories within a selected parent directory in order to scan all nested files
-
 BUF_SIZE = 65536 # 64 KB chunks
 
 def new_baseline():
@@ -71,8 +69,8 @@ def comp_baseline():
                                     # This elif is because this particular hash always appears in the log and baseline before the actual specified file's hash
                                     # Temporary, dirty solution
                                     elif test_hash.hexdigest() != "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" and test_hash.hexdigest() != data[i]:
-                                        print(data[i], '\n')
-                                        print(test_hash.hexdigest())
+                                        print("Old hash:\n",data[i], '\n')
+                                        print("New Hash:\n",test_hash.hexdigest())
                                         print(f"{i!r} has a non-matching hash.\n")
                                         with open("changelog.txt", 'a') as lf:
                                             lf.write(f'{i} : {test_hash.hexdigest()}\nFile was changed at {datetime.datetime.now()}\n\n')
