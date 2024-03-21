@@ -10,6 +10,14 @@ import re
 
 BUF_SIZE = 65536 # 64 KB chunks
 
+def hash_file(filepath):
+    filehash = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        while chunk := f.read(BUF_SIZE):
+            filehash.update(chunk)
+        f.close()
+    return filehash.hexdigest()
+
 def new_baseline():
     # Calculate hash from the target files and store in baseline.txt
 
@@ -21,19 +29,9 @@ def new_baseline():
     jslist = {}
     for subdir, dirs, files in os.walk(directory):
         for filename in files:
-            filehash = hashlib.sha256()
-            fn = os.path.join(subdir, filename)
-            with open(fn, 'rb') as f:
-                while True:
-                    data = f.read()
-                    if not data:
-                        break
-                    if data:
-                        filehash.update(data)
-                f.close()
-                hexdigest = filehash.hexdigest()
-                jslist.update({fn:hexdigest})
-                #print(f"{fn} | {filehash.hexdigest()}", file=f) # Sends the print output to the baseline file
+            filepath = os.path.join(subdir, filename)
+            hexdigest = hash_file(filepath)
+            jslist.update({filepath:hexdigest})
     with open(jsfile, 'w+') as jf:
         json.dump(jslist, jf, indent=4)
     with open(jsfile, 'r') as jf:
@@ -50,16 +48,16 @@ def comp_baseline():
         while True:
             for subdir, dirs, files in os.walk(directory):
                 for filename in files:
-                    fpath = os.path.join(subdir, filename)
-                    if 'File_Integrity\changelog.txt' not in fpath:
+                    filepath = os.path.join(subdir, filename)
+                    if 'File_Integrity\changelog.txt' not in filepath:
                         jf = open(jsfile, 'r')
                         # Declares the json data as a value
                         data = json.load(jf)
                         jf.close()
                         for i in data:
                             # Checks if the current file matches the filename in the json data
-                            if i == str(fpath):
-                                with open(fpath, 'rb') as tf:
+                            if i == str(filepath):
+                                with open(filepath, 'rb') as tf:
                                     test_hash = hashlib.sha256(tf.read())
                                     # The file hash in the json file is compared to the current hash of the file being scanned
                                     # If the hashes do not match, a log will be updated with the changed log
@@ -97,7 +95,6 @@ try:
         print(f"User has entered: {choice}")
         directory = input("Please enter the filepath of the directory you would like to monitor: ") # Set a directory for file hash scanning
         jsfile = f'{directory}.json'.replace('\\', '_').replace('/', '_').replace(':', '_').replace(' ', '_')
-        #baseline = f'baseline_{directory}.txt'.replace('\\', '_').replace('/', '_').replace(':', '_').replace(' ', '_')
 
         if choice == 'A':
             new_baseline()
